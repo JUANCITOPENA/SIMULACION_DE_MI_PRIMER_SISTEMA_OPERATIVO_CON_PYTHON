@@ -1,4 +1,243 @@
-import customtkinter as ctk
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Maestro: Mini Windows JPV v1.0</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Prism CSS para resaltado de sintaxis -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .navbar {
+            background-color: #2c3e50;
+        }
+        .navbar-brand, .nav-link {
+            color: #ecf0f1 !important;
+        }
+        .hero {
+            background: linear-gradient(135deg, #2980b9, #2c3e50);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            border-bottom: 5px solid #e74c3c;
+        }
+        .hero h1 {
+            font-weight: 700;
+            font-size: 3rem;
+        }
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            margin-top: 50px;
+        }
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .card-custom:hover {
+            transform: translateY(-5px);
+        }
+        .icon-large {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        pre {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-offset="70" tabindex="0">
+
+    <!-- Navegación -->
+    <nav id="navbar-example2" class="navbar navbar-expand-lg sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#"><i class="fa-solid fa-microchip"></i> Mini Windows JPV</a>
+            <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-link"><a class="nav-link" href="#introduccion">Introducción</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#teoria">Teoría de SO</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#instalacion">Instalación</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#compilacion">Compilación</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#codigo">Código Fuente</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Hero -->
+    <header class="hero">
+        <div class="container">
+            <h1>🖥️ Simulación de Sistema Operativo</h1>
+            <p class="lead mt-3">Manual Maestro de Replicación - v1.0.1 (UI Actualizada)</p>
+            <p>Construido en Python usando CustomTkinter, Pygame, OpenCV y Arquitectura MDI.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- INTRODUCCIÓN -->
+        <section id="introduccion">
+            <h2 class="section-title"><i class="fa-solid fa-rocket"></i> 1. Introducción al Proyecto</h2>
+            <p class="lead"><strong>Mini Windows JPV</strong> es un proyecto educativo de software libre diseñado para enseñar los fundamentos de cómo funciona un Sistema Operativo desde la perspectiva de la interfaz gráfica y la gestión de procesos ligeros.</p>
+            
+            <div class="row text-center mt-4">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-custom p-4 h-100">
+                        <i class="fa-solid fa-layer-group icon-large"></i>
+                        <h4>Gestión de Ventanas</h4>
+                        <p>Simula el comportamiento de un Gestor de Ventanas (Window Manager) permitiendo arrastrar, abrir y cerrar aplicaciones internas.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card card-custom p-4 h-100">
+                        <i class="fa-solid fa-folder-tree icon-large"></i>
+                        <h4>Sistema de Archivos</h4>
+                        <p>Navegación real a través del disco duro utilizando un módulo integrado de Explorador y un entorno VIRTUAL_DRIVE.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card card-custom p-4 h-100">
+                        <i class="fa-solid fa-film icon-large"></i>
+                        <h4>Motor Multimedia</h4>
+                        <p>Reproducción de video (OpenCV) y audio sincronizado (Pygame/MoviePy) simulando un Media Player moderno.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TEORÍA DE SO -->
+        <section id="teoria">
+            <h2 class="section-title"><i class="fa-solid fa-book"></i> 2. Teoría: ¿Qué es un Sistema Operativo?</h2>
+            
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p>Un <strong>Sistema Operativo (SO)</strong> es el software principal o conjunto de programas que gestiona los recursos de hardware y provee servicios a los programas de aplicación de software.</p>
+                    <p>En este proyecto, estamos simulando específicamente la <strong>Capa de Interfaz de Usuario (Shell/GUI)</strong> y la <strong>Gestión de Tareas</strong> a nivel de aplicación.</p>
+                    
+                    <h4 class="mt-4">Arquitectura del Proyecto</h4>
+                    <ul>
+                        <li><strong>Arquitectura MDI:</strong> Multiple Document Interface. El escritorio es el padre, las apps son hijos.</li>
+                        <li><strong>Hilo Principal (MainLoop):</strong> Mantiene viva la UI e intercepta los clics del mouse y eventos de teclado.</li>
+                        <li><strong>Hilos Secundarios (Threading):</strong> Usados en el Video Player para extraer audio sin congelar la Interfaz.</li>
+                    </ul>
+                </div>
+                <div class="col-md-6 text-center">
+                    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Código y SO" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </section>
+
+        <!-- INSTALACIÓN -->
+        <section id="instalacion">
+            <h2 class="section-title"><i class="fa-solid fa-screwdriver-wrench"></i> 3. Instalación Paso a Paso</h2>
+            
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info"></i> <strong>Requisito previo:</strong> Debes tener instalado Python 3.10 o superior.
+            </div>
+
+            <ol class="list-group list-group-numbered mb-4">
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Paso 1: Clonar o crear la carpeta del proyecto</div>
+                        Crea una carpeta en tu escritorio llamada <code>SISTEMAS OPERATIVOS</code>.
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Paso 2: Instalar dependencias del motor gráfico y utilidades</div>
+                        Abre tu terminal (PowerShell o CMD) y ejecuta el comando de instalación de librerías.
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Paso 3: Crear el archivo principal</div>
+                        Copia el código fuente completo proporcionado más abajo y guárdalo como <code>main_v2.py</code>.
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Paso 4: Ejecutar la simulación</div>
+                        Corre el archivo usando <code>python main_v2.py</code>.
+                    </div>
+                </li>
+            </ol>
+
+            <h4>Comando de instalación de dependencias:</h4>
+            <pre><code class="language-bash">python -m pip install customtkinter pillow psutil opencv-python numpy pygame-ce moviepy tkcalendar tkinterweb imageio[ffmpeg]</code></pre>
+        </section>
+
+        <!-- COMPILACIÓN Y EJECUTABLE -->
+        <section id="compilacion">
+            <h2 class="section-title"><i class="fa-solid fa-box-open"></i> 4. Ejecución, Ejecutable e Instalador</h2>
+            
+            <p>Una vez que el código esté listo y las dependencias instaladas, puedes correrlo de forma normal o empaquetarlo para distribuirlo a cualquier computadora de escritorio con Windows, sin que el otro usuario necesite tener Python instalado.</p>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-custom p-3 h-100">
+                        <h5><i class="fa-solid fa-play text-success"></i> A. Ejecución Normal</h5>
+                        <p class="small">Para probar el código en modo desarrollo mientras haces cambios, simplemente usa la terminal dentro de tu carpeta:</p>
+                        <pre><code class="language-bash">python main_v2.py</code></pre>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-custom p-3 h-100">
+                        <h5><i class="fa-solid fa-file-code text-primary"></i> B. Crear Ejecutable (.exe)</h5>
+                        <p class="small">Usaremos <strong>PyInstaller</strong> para generar un archivo .exe independiente. Primero, instálalo si no lo tienes:</p>
+                        <pre><code class="language-bash">pip install pyinstaller</code></pre>
+                        <p class="small">Luego, compila tu proyecto ocultando la consola:</p>
+                        <pre><code class="language-bash">pyinstaller --noconsole --onefile --windowed --name "MiniWindowsJPV" main_v2.py</code></pre>
+                        <p class="small text-muted">El resultado final aparecerá en la carpeta <code>dist/</code>.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-custom p-3 h-100">
+                        <h5><i class="fa-solid fa-compact-disc text-warning"></i> C. Crear Instalador</h5>
+                        <p class="small">Para dar un toque profesional, puedes empaquetar la carpeta <code>dist/</code> en un instalador tipo "Siguiente > Siguiente".</p>
+                        <ol class="small">
+                            <li>Descarga <strong>Inno Setup</strong> desde jrsoftware.org.</li>
+                            <li>Abre Inno Setup Compiler y haz clic en <em>"Create a new script file using the Script Wizard"</em>.</li>
+                            <li>Ingresa el nombre del software (Mini Windows JPV) y tu nombre.</li>
+                            <li>Selecciona el archivo <code>.exe</code> que se generó en el paso B como archivo principal.</li>
+                            <li>Sigue el asistente hasta el final y compila. Obtendrás un <code>setup.exe</code> profesional.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CÓDIGO FUENTE -->
+        <section id="codigo">
+            <h2 class="section-title"><i class="fa-solid fa-code"></i> 5. El Código Completo (main_v2.py)</h2>
+            <p>Este es el código maestro que incluye las últimas actualizaciones gráficas de emojis y tamaños de fuentes (UI/UX). Cópialo exactamente como se muestra a continuación.</p>
+            
+<pre><code class="language-python">import customtkinter as ctk
 import datetime
 import os
 import psutil
@@ -156,7 +395,6 @@ class MiniWindowsV4(ctk.CTk):
         colors = THEMES[name]
         ctk.set_appearance_mode(colors[4])
         self.start_btn.configure(fg_color=colors[0], hover_color=colors[1])
-        # Actualizar color texto iconos
         txt_col = "white" if colors[4] == "dark" else "black"
         for child in self.desktop.winfo_children():
             if isinstance(child, ctk.CTkButton) and child != self.bg_label:
@@ -241,7 +479,6 @@ class MiniWindowsV4(ctk.CTk):
                 if ret:
                     seek.set(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    # Mantener Aspect Ratio en Video
                     img = Image.fromarray(frame)
                     img = ImageOps.contain(img, (750, 450))
                     imgtk = ImageTk.PhotoImage(image=img)
@@ -314,3 +551,24 @@ class MiniWindowsV4(ctk.CTk):
 if __name__ == "__main__":
     app = MiniWindowsV4()
     app.mainloop()
+</code></pre>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0"><i class="fa-solid fa-code-branch"></i> Creado para la documentación técnica de <strong>Ing. Juancito Peña</strong></p>
+            <p class="text-muted mt-2"><small>Desarrollado con HTML5, CSS3, Bootstrap 5 y Prism.js</small></p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.css"></script>
+    <!-- Prism JS para resaltado de código -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+</body>
+</html>

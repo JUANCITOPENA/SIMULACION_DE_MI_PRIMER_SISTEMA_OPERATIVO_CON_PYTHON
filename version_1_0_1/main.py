@@ -1,15 +1,3 @@
-import sys
-
-# --- PARCHE DE INGENIERÍA PARA PYINSTALLER (IMAGEIO METADATA FIX) ---
-if hasattr(sys, '_MEIPASS'):
-    import importlib.metadata
-    _original_version = importlib.metadata.version
-    def _patched_version(package_name):
-        if package_name == 'imageio': return "2.37.3"
-        if package_name == 'moviepy': return "2.1.1"
-        return _original_version(package_name)
-    importlib.metadata.version = _patched_version
-
 import customtkinter as ctk
 import datetime
 import os
@@ -176,14 +164,14 @@ class MiniWindowsV4(ctk.CTk):
         messagebox.showinfo("Sistema", f"Tema '{name}' aplicado.")
 
     def setup_desktop_icons(self):
-        icons = [("💻 Mi PC", "mypc", self.open_my_pc), ("📂 Explorador", "explorer", self.open_explorer),
-                 ("🌐 Navegador", "browser", self.open_browser), ("🎬 Video Pro", "video", self.open_video_player),
-                 ("📝 Notepad", "notepad", self.open_notepad)]
+        icons = [("🖥️\nMi PC", "mypc", self.open_my_pc), ("🗂️\nExplorador", "explorer", self.open_explorer),
+                 ("🌍\nNavegador", "browser", self.open_browser), ("📽️\nVideo Pro", "video", self.open_video_player),
+                 ("🗒️\nNotepad", "notepad", self.open_notepad)]
         for i, (name, aid, cmd) in enumerate(icons):
-            btn = ctk.CTkButton(self.desktop, text=name, width=100, height=110, fg_color="transparent", 
+            btn = ctk.CTkButton(self.desktop, text=name, width=120, height=130, fg_color="transparent", 
                                  text_color="white", hover_color=("#b2bec3", "#636e72"), 
-                                 font=("Segoe UI", 12, "bold"), compound="top", command=cmd)
-            btn.place(x=30, y=30 + (i * 125))
+                                 font=("Segoe UI", 20, "bold"), command=cmd)
+            btn.place(x=40, y=30 + (i * 140))
 
     def toggle_start_menu(self):
         if self.start_menu: self.start_menu.destroy(); self.start_menu = None
@@ -192,8 +180,8 @@ class MiniWindowsV4(ctk.CTk):
             self.start_menu.place(x=10, y=self.desktop.winfo_height() - 610); self.start_menu.lift()
             ctk.CTkLabel(self.start_menu, text="SISTEMA JPV v4.2", font=("Segoe UI", 20, "bold")).pack(pady=20)
             app_f = ctk.CTkFrame(self.start_menu, fg_color="transparent"); app_f.pack(fill="both", expand=True, padx=10)
-            apps = [("📂 Explorador", self.open_explorer), ("🌐 Navegador", self.open_browser), ("🎬 Video Player", self.open_video_player),
-                    ("💻 Mi PC", self.open_my_pc), ("📝 Notepad", self.open_notepad), ("🧮 Calculadora", self.open_calc)]
+            apps = [("🗂️ Explorador", self.open_explorer), ("🌍 Navegador", self.open_browser), ("📽️ Video Player", self.open_video_player),
+                    ("🖥️ Mi PC", self.open_my_pc), ("🗒️ Notepad", self.open_notepad), ("🧮 Calculadora", self.open_calc)]
             for n, c in apps:
                 ctk.CTkButton(app_f, text=n, fg_color="transparent", anchor="w", height=40, command=lambda cmd=c: [cmd(), self.toggle_start_menu()]).pack(fill="x")
             ctk.CTkLabel(self.start_menu, text="--- Personalización ---", font=("Segoe UI", 10)).pack(pady=5)

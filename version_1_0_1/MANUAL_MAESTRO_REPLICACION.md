@@ -288,3 +288,8 @@ Usamos `ImageOps.fit`. Este comando calcula el ratio de la imagen original vs el
 ---
 **Ing. Juancito Peña**  
 *Ingeniería de Sistemas - Versión 1.0.1 (Final)*
+
+
+## Registro de Actualizaciones Recientes
+- **Mejora UI/UX:** Fuentes incrementadas a tamaño 20, emojis representativos (🖥️, 🗂️, 🌍, 📽️, 🗒️) con salto de línea.
+- **Ejecutable:** Re-compilado en dist\MiniWindowsJPV_v1.0.1.exe

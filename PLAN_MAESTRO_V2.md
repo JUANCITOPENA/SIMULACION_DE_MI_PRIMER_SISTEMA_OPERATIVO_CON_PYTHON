@@ -29,5 +29,11 @@ La v2.0 transformará el simulador en un entorno funcional que interactúa con e
 
 ---
 **Arquitecto:** Gemini CLI Agent & Ing. Juancito Peña
-**Estado:** En Desarrollo (v2.0 Pre-Alpha)
+**Estado:** En Desarrollo (v2.0 Pre-Alpha - UI Actualizada)
 
+## 5. Registro de Cambios Recientes
+- **UI/UX (Iconos del Escritorio y Menú Inicio):**
+  - Se incrementó el tamaño de la fuente (de 12 a 20) para mayor visibilidad.
+  - Se reemplazaron los emojis por versiones más representativas (🖥️, 🗂️, 🌍, 📽️, 🗒️).
+  - Se añadió un salto de línea en el texto del botón para separar visualmente el icono de su etiqueta.
+- **Compilación:** Se generó y actualizó el ejecutable `MiniWindowsJPV_v1.0.1.exe` en la carpeta `dist` con los últimos cambios gráficos aplicados.
