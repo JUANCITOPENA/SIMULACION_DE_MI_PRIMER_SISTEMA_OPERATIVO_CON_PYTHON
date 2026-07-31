@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Maestro: Mini Windows JPV v1.0</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Prism CSS para resaltado de sintaxis -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .navbar {
+            background-color: #2c3e50;
+        }
+        .navbar-brand, .nav-link {
+            color: #ecf0f1 !important;
+        }
+        .hero {
+            background: linear-gradient(135deg, #2980b9, #2c3e50);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            border-bottom: 5px solid #e74c3c;
+        }
+        .hero h1 {
+            font-weight: 700;
+            font-size: 3rem;
+        }
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            margin-top: 50px;
+        }
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .card-custom:hover {
+            transform: translateY(-5px);
+        }
+        .icon-large {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        pre {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-offset="70" tabindex="0">
+
+    <!-- Navegación -->
+    <nav id="navbar-example2" class="navbar navbar-expand-lg sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#"><i class="fa-solid fa-microchip"></i> Mini Windows JPV</a>
+            <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-link"><a class="nav-link" href="#introduccion">Introducción</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#teoria">Teoría de SO</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#instalacion">Instalación</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#compilacion">Compilación</a></li>
+                    <li class="nav-link"><a class="nav-link" href="#codigo">Código Fuente</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Hero -->
+    <header class="hero">
+        <div class="container">
+            <h1>🖥️ Simulación de Sistema Operativo</h1>
+            <p class="lead mt-3">Manual Maestro de Replicación - v1.0.1 (UI Actualizada)</p>
+            <p>Construido en Python usando CustomTkinter, Pygame, OpenCV y Arquitectura MDI.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- INTRODUCCIÓN -->
+        <section id="introduccion">
+            <h2 class="section-title"><i class="fa-solid fa-rocket"></i> 1. Introducción al Proyecto</h2>
+            <p class="lead"><strong>Mini Windows JPV</strong> es un proyecto educativo de software libre diseñado para enseñar los fundamentos de cómo funciona un Sistema Operativo desde la perspectiva de la interfaz gráfica y la gestión de procesos ligeros.</p>
+            
+            <div class="row text-center mt-4">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-custom p-4 h-100">
+                        <i class="fa-solid fa-layer-group icon-large"></i>
+                        <h4>Gestión de Ventanas</h4>
+                        <p>Simula el comportamiento de un Gestor de Ventanas (Window Manager) permitiendo arrastrar, abrir y cerrar aplicaciones internas.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card card-custom p-4 h-100">
+                        <i class="fa-solid fa-folder-tree icon-large"></i>
+                        <h4>Sistema de Archivos</h4>
+                        <p>Navegación real a través del disco duro utilizando un módulo integrado de Explorador y un entorno VIRTUAL_DRIVE.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card card-custom p-4 h-100">
+                        <i class="fa-solid fa-film icon-large"></i>
+                        <h4>Motor Multimedia</h4>
+                        <p>Reproducción de video (OpenCV) y audio sincronizado (Pygame/MoviePy) simulando un Media Player moderno.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TEORÍA DE SO -->
+        <section id="teoria">
+            <h2 class="section-title"><i class="fa-solid fa-book"></i> 2. Teoría: ¿Qué es un Sistema Operativo?</h2>
+            
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p>Un <strong>Sistema Operativo (SO)</strong> es el software principal o conjunto de programas que gestiona los recursos de hardware y provee servicios a los programas de aplicación de software.</p>
+                    <p>En este proyecto, estamos simulando específicamente la <strong>Capa de Interfaz de Usuario (Shell/GUI)</strong> y la <strong>Gestión de Tareas</strong> a nivel de aplicación.</p>
+                    
+                    <h4 class="mt-4">Arquitectura del Proyecto</h4>
+                    <ul>
+                        <li><strong>Arquitectura MDI:</strong> Multiple Document Interface. El escritorio es el padre, las apps son hijos.</li>
+                        <li><strong>Hilo Principal (MainLoop):</strong> Mantiene viva la UI e intercepta los clics del mouse y eventos de teclado.</li>
+                        <li><strong>Hilos Secundarios (Threading):</strong> Usados en el Video Player para extraer audio sin congelar la Interfaz.</li>
+                    </ul>
+                </div>
+                <div class="col-md-6 text-center">
+                    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Código y SO" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </section>
+
+        <!-- INSTALACIÓN -->
+        <section id="instalacion">
+            <h2 class="section-title"><i class="fa-solid fa-screwdriver-wrench"></i> 3. Instalación Paso a Paso</h2>
+            
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info"></i> <strong>Requisito previo:</strong> Debes tener instalado Python 3.10 o superior.
+            </div>
+
+            <ol class="list-group list-group-numbered mb-4">
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Paso 1: Clonar o crear la carpeta del proyecto</div>
+                        Crea una carpeta en tu escritorio llamada <code>SISTEMAS OPERATIVOS</code>.
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Paso 2: Instalar dependencias del motor gráfico y utilidades</div>
+                        Abre tu terminal (PowerShell o CMD) y ejecuta el comando de instalación de librerías.
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Paso 3: Crear el archivo principal</div>
+                        Copia el código fuente completo proporcionado más abajo y guárdalo como <code>main_v2.py</code>.
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Paso 4: Ejecutar la simulación</div>
+                        Corre el archivo usando <code>python main_v2.py</code>.
+                    </div>
+                </li>
+            </ol>
+
+            <h4>Comando de instalación de dependencias:</h4>
+            <pre><code class="language-bash">python -m pip install customtkinter pillow psutil opencv-python numpy pygame-ce moviepy tkcalendar tkinterweb imageio[ffmpeg]</code></pre>
+        </section>
+
+        <!-- COMPILACIÓN Y EJECUTABLE -->
+        <section id="compilacion">
+            <h2 class="section-title"><i class="fa-solid fa-box-open"></i> 4. Ejecución, Ejecutable e Instalador</h2>
+            
+            <p>Una vez que el código esté listo y las dependencias instaladas, puedes correrlo de forma normal o empaquetarlo para distribuirlo a cualquier computadora de escritorio con Windows, sin que el otro usuario necesite tener Python instalado.</p>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-custom p-3 h-100">
+                        <h5><i class="fa-solid fa-play text-success"></i> A. Ejecución Normal</h5>
+                        <p class="small">Para probar el código en modo desarrollo mientras haces cambios, simplemente usa la terminal dentro de tu carpeta:</p>
+                        <pre><code class="language-bash">python main_v2.py</code></pre>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-custom p-3 h-100">
+                        <h5><i class="fa-solid fa-file-code text-primary"></i> B. Crear Ejecutable (.exe)</h5>
+                        <p class="small">Usaremos <strong>PyInstaller</strong> para generar un archivo .exe independiente. Primero, instálalo si no lo tienes:</p>
+                        <pre><code class="language-bash">pip install pyinstaller</code></pre>
+                        <p class="small">Luego, compila tu proyecto ocultando la consola:</p>
+                        <pre><code class="language-bash">pyinstaller --noconsole --onefile --windowed --name "MiniWindowsJPV" main_v2.py</code></pre>
+                        <p class="small text-muted">El resultado final aparecerá en la carpeta <code>dist/</code>.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-custom p-3 h-100">
+                        <h5><i class="fa-solid fa-compact-disc text-warning"></i> C. Crear Instalador</h5>
+                        <p class="small">Para dar un toque profesional, puedes empaquetar la carpeta <code>dist/</code> en un instalador tipo "Siguiente > Siguiente".</p>
+                        <ol class="small">
+                            <li>Descarga <strong>Inno Setup</strong> desde jrsoftware.org.</li>
+                            <li>Abre Inno Setup Compiler y haz clic en <em>"Create a new script file using the Script Wizard"</em>.</li>
+                            <li>Ingresa el nombre del software (Mini Windows JPV) y tu nombre.</li>
+                            <li>Selecciona el archivo <code>.exe</code> que se generó en el paso B como archivo principal.</li>
+                            <li>Sigue el asistente hasta el final y compila. Obtendrás un <code>setup.exe</code> profesional.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CÓDIGO FUENTE -->
+        <section id="codigo">
+            <h2 class="section-title"><i class="fa-solid fa-code"></i> 5. El Código Completo (main_v2.py)</h2>
+            <p>Este es el código maestro que incluye las últimas actualizaciones gráficas de emojis y tamaños de fuentes (UI/UX). Cópialo exactamente como se muestra a continuación.</p>
+            
+<pre><code class="language-python">import customtkinter as ctk
+import datetime
+import os
+import psutil
+import cv2
+import pygame
+import threading
+from tkinter import messagebox, simpledialog, filedialog
+from tkinterweb import HtmlFrame
+from tkcalendar import Calendar
+from PIL import Image, ImageTk, ImageOps
+import moviepy as mp
+
+# Inicializar Pygame Mixer
+pygame.mixer.init()
+
+# Configuración Global
+BASE_PATH = os.path.join(os.path.expanduser("~"), "Desktop", "SISTEMAS OPERATIVOS")
+ROOT_DIR = os.path.join(BASE_PATH, "VIRTUAL_DRIVE")
+TEMP_DIR = os.path.join(BASE_PATH, "temp")
+if not os.path.exists(ROOT_DIR): os.makedirs(ROOT_DIR)
+if not os.path.exists(TEMP_DIR): os.makedirs(TEMP_DIR)
+
+THEMES = {
+    "Windows 11": ["#0078d4", "#2b88d8", "#202020", "white", "dark"],
+    "Dark Cobalt": ["#1e3799", "#4a69bd", "#0c2461", "white", "dark"],
+    "Emerald": ["#079992", "#38ada9", "#006266", "white", "dark"],
+    "Sunset": ["#e55039", "#eb2f06", "#b71540", "white", "dark"],
+    "Minimal White": ["#636e72", "#b2bec3", "#ffffff", "black", "light"]
+}
+
+class InternalWindow(ctk.CTkFrame):
+    def __init__(self, master, app_id, title="Ventana", width=500, height=400, on_close=None, theme_colors=None, **kwargs):
+        bg_col = theme_colors[2] if theme_colors else "#2c3e50"
+        super().__init__(master, width=width, height=height, corner_radius=15, 
+                         border_width=2, border_color="#34495e", fg_color=bg_col, **kwargs)
+        
+        self.app_id = app_id
+        self.on_close = on_close
+
+        # Barra de Título
+        self.title_bar = ctk.CTkFrame(self, height=40, fg_color="#34495e", corner_radius=12)
+        self.title_bar.pack(fill="x", side="top", padx=3, pady=3)
+        
+        self.title_label = ctk.CTkLabel(self.title_bar, text=title, font=("Segoe UI", 12, "bold"))
+        self.title_label.pack(side="left", padx=15)
+        
+        self.close_btn = ctk.CTkButton(self.title_bar, text="✕", width=35, height=30, 
+                                        fg_color="#e17055", hover_color="#d63031", command=self.close_window)
+        self.close_btn.pack(side="right", padx=5)
+        
+        self.content = ctk.CTkFrame(self, fg_color="transparent")
+        self.content.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        self.title_bar.bind("<Button-1>", self.start_drag)
+        self.title_bar.bind("<B1-Motion>", self.do_drag)
+        self.bind("<Button-1>", lambda e: self.lift())
+
+    def start_drag(self, event):
+        self._drag_data = {"x": event.x, "y": event.y}
+        self.lift()
+
+    def do_drag(self, event):
+        x = self.winfo_x() - self._drag_data["x"] + event.x
+        y = self.winfo_y() - self._drag_data["y"] + event.y
+        self.place(x=x, y=y)
+
+    def close_window(self):
+        if self.on_close: self.on_close(self.app_id)
+        self.destroy()
+
+class MiniWindowsV4(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("Mini Windows JPV v4.2 - Multimedia Pro")
+        self.geometry("1300x850")
+        
+        self.current_theme = "Windows 11"
+        self.running_apps = {}
+        self.wallpapers = self.scan_wallpapers()
+        self.current_wallpaper_idx = 0
+        self.volume_level = 1.0
+
+        # Desktop
+        self.desktop = ctk.CTkFrame(self, corner_radius=0)
+        self.desktop.pack(fill="both", expand=True)
+        
+        self.bg_label = ctk.CTkLabel(self.desktop, text="")
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.bind("<Configure>", lambda e: self.load_wallpaper())
+        
+        # Taskbar
+        self.taskbar = ctk.CTkFrame(self, height=55, fg_color=("#dfe6e9", "#2d3436"), corner_radius=0)
+        self.taskbar.pack(side="bottom", fill="x")
+
+        # Botones Taskbar
+        self.start_btn = ctk.CTkButton(self.taskbar, text="🪟", width=60, height=45,
+                                        fg_color=THEMES[self.current_theme][0], 
+                                        command=self.toggle_start_menu)
+        self.start_btn.pack(side="left", padx=15, pady=5)
+
+        self.vol_frame = ctk.CTkFrame(self.taskbar, fg_color="transparent")
+        self.vol_frame.pack(side="right", padx=20)
+        self.vol_label = ctk.CTkLabel(self.vol_frame, text="🔊", font=("Segoe UI", 14))
+        self.vol_label.pack(side="left", padx=5)
+        self.vol_slider = ctk.CTkSlider(self.vol_frame, from_=0, to=1, width=100, command=self.change_volume)
+        self.vol_slider.set(1.0); self.vol_slider.pack(side="left")
+
+        self.clock_btn = ctk.CTkButton(self.taskbar, text="", font=("Consolas", 12, "bold"),
+                                        fg_color="transparent", width=180, command=self.open_calendar)
+        self.clock_btn.pack(side="right", padx=10)
+        
+        self.update_time()
+        self.setup_desktop_icons()
+        self.start_menu = None
+        self.load_wallpaper()
+
+    def scan_wallpapers(self):
+        ws = [f for f in os.listdir(BASE_PATH) if f.lower().startswith("fondo") and f.lower().endswith((".png", ".jpg", ".jpeg"))]
+        return sorted(ws) if ws else ["fondo.png"]
+
+    def load_wallpaper(self):
+        try:
+            fname = self.wallpapers[self.current_wallpaper_idx]
+            path = os.path.join(BASE_PATH, fname)
+            if not os.path.exists(path): return
+            
+            wall_img = Image.open(path)
+            # AJUSTE PROPORCIONAL (NO DISTORSIÓN)
+            win_w = self.desktop.winfo_width()
+            win_h = self.desktop.winfo_height()
+            if win_w < 100 or win_h < 100: win_w, win_h = 1300, 850
+            
+            wall_img = ImageOps.fit(wall_img, (win_w, win_h), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+            self.bg_image = ctk.CTkImage(wall_img, wall_img, size=(win_w, win_h))
+            self.bg_label.configure(image=self.bg_image)
+        except Exception as e: print(f"Error wallpaper: {e}")
+
+    def change_wallpaper(self):
+        self.current_wallpaper_idx = (self.current_wallpaper_idx + 1) % len(self.wallpapers)
+        self.load_wallpaper()
+
+    def change_volume(self, value):
+        self.volume_level = float(value)
+        pygame.mixer.music.set_volume(self.volume_level)
+        icon = "🔇" if self.volume_level == 0 else "🔉" if self.volume_level < 0.5 else "🔊"
+        self.vol_label.configure(text=icon)
+
+    def update_time(self):
+        self.clock_btn.configure(text=datetime.datetime.now().strftime("%I:%M:%S %p\n%d/%m/%Y"))
+        self.after(1000, self.update_time)
+
+    def apply_theme(self, name):
+        self.current_theme = name
+        colors = THEMES[name]
+        ctk.set_appearance_mode(colors[4])
+        self.start_btn.configure(fg_color=colors[0], hover_color=colors[1])
+        txt_col = "white" if colors[4] == "dark" else "black"
+        for child in self.desktop.winfo_children():
+            if isinstance(child, ctk.CTkButton) and child != self.bg_label:
+                child.configure(text_color=txt_col)
+        messagebox.showinfo("Sistema", f"Tema '{name}' aplicado.")
+
+    def setup_desktop_icons(self):
+        icons = [("🖥️\nMi PC", "mypc", self.open_my_pc), ("🗂️\nExplorador", "explorer", self.open_explorer),
+                 ("🌍\nNavegador", "browser", self.open_browser), ("📽️\nVideo Pro", "video", self.open_video_player),
+                 ("🗒️\nNotepad", "notepad", self.open_notepad)]
+        for i, (name, aid, cmd) in enumerate(icons):
+            btn = ctk.CTkButton(self.desktop, text=name, width=120, height=130, fg_color="transparent", 
+                                 text_color="white", hover_color=("#b2bec3", "#636e72"), 
+                                 font=("Segoe UI", 20, "bold"), command=cmd)
+            btn.place(x=40, y=30 + (i * 140))
+
+    def toggle_start_menu(self):
+        if self.start_menu: self.start_menu.destroy(); self.start_menu = None
+        else:
+            self.start_menu = ctk.CTkFrame(self.desktop, width=350, height=600, border_width=2, corner_radius=20)
+            self.start_menu.place(x=10, y=self.desktop.winfo_height() - 610); self.start_menu.lift()
+            ctk.CTkLabel(self.start_menu, text="SISTEMA JPV v4.2", font=("Segoe UI", 20, "bold")).pack(pady=20)
+            app_f = ctk.CTkFrame(self.start_menu, fg_color="transparent"); app_f.pack(fill="both", expand=True, padx=10)
+            apps = [("🗂️ Explorador", self.open_explorer), ("🌍 Navegador", self.open_browser), ("📽️ Video Player", self.open_video_player),
+                    ("🖥️ Mi PC", self.open_my_pc), ("🗒️ Notepad", self.open_notepad), ("🧮 Calculadora", self.open_calc)]
+            for n, c in apps:
+                ctk.CTkButton(app_f, text=n, fg_color="transparent", anchor="w", height=40, command=lambda cmd=c: [cmd(), self.toggle_start_menu()]).pack(fill="x")
+            ctk.CTkLabel(self.start_menu, text="--- Personalización ---", font=("Segoe UI", 10)).pack(pady=5)
+            for tname in THEMES:
+                ctk.CTkButton(self.start_menu, text=tname, height=28, fg_color=THEMES[tname][0], command=lambda t=tname: self.apply_theme(t)).pack(fill="x", padx=40, pady=1)
+            ctk.CTkButton(self.start_menu, text="🖼️ Siguiente Fondo", command=self.change_wallpaper, fg_color="#0984e3").pack(fill="x", padx=40, pady=10)
+
+    def request_app(self, app_id, title, size):
+        if app_id in self.running_apps:
+            self.running_apps[app_id].lift(); return None
+        win = InternalWindow(self.desktop, app_id, title, *map(int, size.split('x')), on_close=self.on_app_close, theme_colors=THEMES[self.current_theme])
+        self.running_apps[app_id] = win
+        win.place(x=300, y=100); return win
+
+    def on_app_close(self, app_id):
+        if app_id in self.running_apps: del self.running_apps[app_id]
+
+    # --- VIDEO PLAYER PRO (AUDIO REAL + SIN DISTORSIÓN) ---
+    def open_video_player(self):
+        win = self.request_app("video", "JPV Video Pro (Audio+)", "800x650")
+        if not win: return
+        vpath = filedialog.askopenfilename(filetypes=[("Video", "*.mp4 *.avi")])
+        if not vpath: win.destroy(); return
+        
+        # Extraer Audio con MoviePy
+        audio_temp = os.path.join(TEMP_DIR, "temp_audio.mp3")
+        def extract():
+            try:
+                clip = mp.VideoFileClip(vpath)
+                clip.audio.write_audiofile(audio_temp, logger=None)
+                pygame.mixer.music.load(audio_temp)
+                pygame.mixer.music.play()
+            except: pass
+        threading.Thread(target=extract, daemon=True).start()
+
+        cap = cv2.VideoCapture(vpath)
+        total_f = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        canvas = ctk.CTkLabel(win.content, text="")
+        canvas.pack(fill="both", expand=True)
+        
+        seek = ctk.CTkSlider(win.content, from_=0, to=total_f, height=15, command=lambda v: [cap.set(cv2.CAP_PROP_POS_FRAMES, int(v)), pygame.mixer.music.play(start=int(v)/cap.get(cv2.CAP_PROP_FPS))])
+        seek.pack(fill="x", pady=5)
+        
+        self.is_playing = True
+        def toggle():
+            self.is_playing = not self.is_playing
+            if self.is_playing: pygame.mixer.music.unpause()
+            else: pygame.mixer.music.pause()
+
+        ctk.CTkButton(win.content, text="Play/Pausa", command=toggle).pack(pady=5)
+
+        def stream():
+            if not win.winfo_exists(): 
+                cap.release(); pygame.mixer.music.stop(); return
+            if self.is_playing:
+                ret, frame = cap.read()
+                if ret:
+                    seek.set(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    img = Image.fromarray(frame)
+                    img = ImageOps.contain(img, (750, 450))
+                    imgtk = ImageTk.PhotoImage(image=img)
+                    canvas.imgtk = imgtk; canvas.configure(image=imgtk)
+            win.after(25, stream)
+        stream()
+
+    # --- OTRAS APPS ---
+    def open_explorer(self, path=ROOT_DIR):
+        win = self.request_app("explorer", f"Explorador - {os.path.basename(path) or 'Raíz'}", "700x500")
+        if not win: return
+        nav = ctk.CTkFrame(win.content, height=40); nav.pack(fill="x", pady=2)
+        ctk.CTkButton(nav, text="⬆️ Subir", width=70, command=lambda: [win.destroy(), self.on_app_close("explorer"), self.open_explorer(os.path.dirname(path))]).pack(side="left", padx=5)
+        scroll = ctk.CTkScrollableFrame(win.content); scroll.pack(fill="both", expand=True)
+        for item in os.listdir(path):
+            fp = os.path.join(path, item); is_d = os.path.isdir(fp)
+            ctk.CTkButton(scroll, text=f"{'📁' if is_d else '📄'} {item}", anchor="w", fg_color="transparent", command=lambda p=fp: [win.destroy(), self.on_app_close("explorer"), self.open_explorer(p)] if os.path.isdir(p) else self.open_notepad(p)).pack(fill="x")
+
+    def open_browser(self):
+        win = self.request_app("browser", "JPV Browser", "950x700")
+        if not win: return
+        nav = ctk.CTkFrame(win.content, height=40); nav.pack(fill="x", side="top", pady=2)
+        ent = ctk.CTkEntry(nav, placeholder_text="URL..."); ent.pack(side="left", fill="x", expand=True, padx=5)
+        web = HtmlFrame(win.content); web.pack(fill="both", expand=True)
+        ctk.CTkButton(nav, text="Ir", width=60, command=lambda: web.load_website(ent.get() if ent.get().startswith("http") else "https://"+ent.get())).pack(side="right", padx=5)
+        web.load_website("https://www.google.com")
+
+    def open_my_pc(self):
+        win = self.request_app("mypc", "Mi PC - Estado", "600x450")
+        if not win: return
+        scroll = ctk.CTkScrollableFrame(win.content); scroll.pack(fill="both", expand=True)
+        for p in psutil.disk_partitions():
+            try:
+                u = psutil.disk_usage(p.mountpoint)
+                f = ctk.CTkFrame(scroll, fg_color=("#dfe6e9", "#34495e"), corner_radius=10); f.pack(fill="x", pady=5, padx=5)
+                ctk.CTkLabel(f, text=f"Unidad {p.device}\n{u.free//2**30}GB Libres", justify="left").pack(side="left", padx=15, pady=10)
+                pg = ctk.CTkProgressBar(f, width=180); pg.pack(side="right", padx=15); pg.set(u.percent/100)
+            except: continue
+
+    def open_notepad(self, path=None):
+        win = self.request_app("notepad", "Notepad JPV", "600x500")
+        if not win: return
+        txt = ctk.CTkTextbox(win.content, font=("Consolas", 14)); txt.pack(fill="both", expand=True)
+        if path:
+            with open(path, "r") as f: txt.insert("0.0", f.read())
+        def save():
+            p = path or filedialog.asksaveasfilename(initialdir=ROOT_DIR, defaultextension=".txt")
+            if p:
+                with open(p, "w") as f: f.write(txt.get("0.0", "end"))
+                messagebox.showinfo("Sistema", "Guardado."); win.destroy(); self.on_app_close("notepad")
+        ctk.CTkButton(win.content, text="💾 Guardar", command=save, fg_color="#00b894").pack(pady=10)
+
+    def open_calc(self):
+        win = self.request_app("calc", "Calculadora", "320x450")
+        if not win: return
+        ent = ctk.CTkEntry(win.content, font=("Consolas", 24), justify="right"); ent.pack(fill="x", padx=10, pady=15)
+        grid = ctk.CTkFrame(win.content); grid.pack(fill="both", expand=True)
+        btns = ['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+']
+        r, c = 0, 0
+        for b in btns:
+            ctk.CTkButton(grid, text=b, width=65, height=65, command=lambda x=b: [ent.insert("end", x) if x not in ["=","C"] else (ent.delete(0,"end") if x=="C" else ent.insert("end","="+str(eval(ent.get()))))]).grid(row=r, column=c, padx=3, pady=3)
+            c+=1; 
+            if c>3: c=0; r+=1
+
+    def open_calendar(self):
+        win = self.request_app("calendar", "Calendario", "400x500")
+        if not win: return
+        Calendar(win.content).pack(pady=10, padx=10, fill="both", expand=True)
+
+if __name__ == "__main__":
+    app = MiniWindowsV4()
+    app.mainloop()
+</code></pre>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0"><i class="fa-solid fa-code-branch"></i> Creado para la documentación técnica de <strong>Ing. Juancito Peña</strong></p>
+            <p class="text-muted mt-2"><small>Desarrollado con HTML5, CSS3, Bootstrap 5 y Prism.js</small></p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.css"></script>
+    <!-- Prism JS para resaltado de código -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+</body>
+</html>
