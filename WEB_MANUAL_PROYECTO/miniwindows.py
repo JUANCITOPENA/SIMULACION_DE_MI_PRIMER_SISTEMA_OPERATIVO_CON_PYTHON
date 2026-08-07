@@ -1,0 +1,362 @@
+# === IMPORTACIONES ===
+# customtkinter: Para la interfaz gráfica moderna (UI)
+import customtkinter as ctk
+import datetime # Para manejar la hora y fecha
+import os # Para interactuar con el sistema operativo
+import psutil # Para obtener información del sistema (discos, memoria)
+import cv2 # OpenCV, para el procesamiento de video
+import pygame # Para el motor de audio y reproducción
+import threading # Para ejecutar tareas en segundo plano (hilos)
+# Componentes clásicos de tkinter para diálogos y archivos
+from tkinter import messagebox, simpledialog, filedialog
+from tkinterweb import HtmlFrame # Para integrar un navegador web
+from tkcalendar import Calendar # Para mostrar un calendario interactivo
+from PIL import Image, ImageTk, ImageOps # Pillow, para manejar imágenes
+import moviepy as mp # Para extraer audio de los videos
+
+# Inicializar Pygame Mixer (El motor de sonido)
+pygame.mixer.init()
+
+# === CONFIGURACIÓN GLOBAL ===
+# Variables que definen las rutas principales del sistema simulado
+# BASE_PATH ahora es dinámico (la carpeta donde está guardado este archivo)
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+WALLPAPERS_DIR = os.path.join(BASE_PATH, "assets", "wallpapers")
+ROOT_DIR = os.path.join(BASE_PATH, "VIRTUAL_DRIVE")
+TEMP_DIR = os.path.join(BASE_PATH, "temp")
+# Crear directorios si no existen
+if not os.path.exists(WALLPAPERS_DIR): os.makedirs(WALLPAPERS_DIR)
+if not os.path.exists(ROOT_DIR): os.makedirs(ROOT_DIR)
+if not os.path.exists(TEMP_DIR): os.makedirs(TEMP_DIR)
+
+# Paletas de colores para los temas del SO
+THEMES = {
+    "Windows 11": ["#0078d4", "#2b88d8", "#202020", "white", "dark"],
+    "Dark Cobalt": ["#1e3799", "#4a69bd", "#0c2461", "white", "dark"],
+    "Emerald": ["#079992", "#38ada9", "#006266", "white", "dark"],
+    "Sunset": ["#e55039", "#eb2f06", "#b71540", "white", "dark"],
+    "Minimal White": ["#636e72", "#b2bec3", "#ffffff", "black", "light"]
+}
+
+# === CLASE INTERNAL WINDOW ===
+# Simula una ventana de aplicación individual que puede ser arrastrada y cerrada
+class InternalWindow(ctk.CTkFrame):
+    def __init__(self, master, app_id, title="Ventana", width=500, height=400, on_close=None, theme_colors=None, **kwargs):
+        bg_col = theme_colors[2] if theme_colors else "#2c3e50"
+        super().__init__(master, width=width, height=height, corner_radius=15, 
+                         border_width=2, border_color="#34495e", fg_color=bg_col, **kwargs)
+        
+        self.app_id = app_id
+        self.on_close = on_close
+
+        # Barra de Título (Donde el usuario hace clic para arrastrar)
+        self.title_bar = ctk.CTkFrame(self, height=40, fg_color="#34495e", corner_radius=12)
+        self.title_bar.pack(fill="x", side="top", padx=3, pady=3)
+        
+        # Etiqueta con el nombre de la ventana
+        self.title_label = ctk.CTkLabel(self.title_bar, text=title, font=("Segoe UI", 12, "bold"))
+        self.title_label.pack(side="left", padx=15)
+        
+        # Botón para cerrar la ventana
+        self.close_btn = ctk.CTkButton(self.title_bar, text="✕", width=35, height=30, 
+                                        fg_color="#e17055", hover_color="#d63031", command=self.close_window)
+        self.close_btn.pack(side="right", padx=5)
+        
+        # Contenedor principal para el contenido de la aplicación
+        self.content = ctk.CTkFrame(self, fg_color="transparent")
+        self.content.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Eventos para arrastrar la ventana y traerla al frente
+        self.title_bar.bind("<Button-1>", self.start_drag)
+        self.title_bar.bind("<B1-Motion>", self.do_drag)
+        self.bind("<Button-1>", lambda e: self.lift())
+
+    # Funciones para manejar el arrastre (Drag & Drop) de la ventana
+    def start_drag(self, event):
+        self._drag_data = {"x": event.x, "y": event.y}
+        self.lift() # Trae la ventana al frente
+
+    def do_drag(self, event):
+        x = self.winfo_x() - self._drag_data["x"] + event.x
+        y = self.winfo_y() - self._drag_data["y"] + event.y
+        self.place(x=x, y=y) # Mueve la ventana a la nueva posición
+
+    def close_window(self):
+        if self.on_close: self.on_close(self.app_id) # Ejecuta una acción al cerrar
+        self.destroy() # Elimina la ventana
+
+# === CLASE PRINCIPAL DEL SISTEMA ===
+# Es la ventana maestra que contiene el escritorio y administra todas las aplicaciones
+class MiniWindowsV4(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("Mini Windows JPV v4.2 - Multimedia Pro")
+        self.geometry("1300x850")
+        
+        self.current_theme = "Windows 11"
+        self.running_apps = {} # Diccionario para llevar registro de apps abiertas
+        self.wallpapers = self.scan_wallpapers() # Lista de fondos disponibles
+        self.current_wallpaper_idx = 0
+        self.volume_level = 1.0
+
+        # Escritorio: El fondo donde viven los íconos y ventanas
+        self.desktop = ctk.CTkFrame(self, corner_radius=0)
+        self.desktop.pack(fill="both", expand=True)
+        
+        self.bg_label = ctk.CTkLabel(self.desktop, text="")
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.bind("<Configure>", lambda e: self.load_wallpaper()) # Ajustar fondo al redimensionar
+        
+        # Barra de Tareas (Taskbar)
+        self.taskbar = ctk.CTkFrame(self, height=55, fg_color=("#dfe6e9", "#2d3436"), corner_radius=0)
+        self.taskbar.pack(side="bottom", fill="x")
+
+        # Botón de Inicio en la barra de tareas
+        self.start_btn = ctk.CTkButton(self.taskbar, text="🪟", width=60, height=45,
+                                        fg_color=THEMES[self.current_theme][0], 
+                                        command=self.toggle_start_menu)
+        self.start_btn.pack(side="left", padx=15, pady=5)
+
+        # Controles de Volumen
+        self.vol_frame = ctk.CTkFrame(self.taskbar, fg_color="transparent")
+        self.vol_frame.pack(side="right", padx=20)
+        self.vol_label = ctk.CTkLabel(self.vol_frame, text="🔊", font=("Segoe UI", 14))
+        self.vol_label.pack(side="left", padx=5)
+        self.vol_slider = ctk.CTkSlider(self.vol_frame, from_=0, to=1, width=100, command=self.change_volume)
+        self.vol_slider.set(1.0); self.vol_slider.pack(side="left")
+
+        # Reloj en la barra de tareas
+        self.clock_btn = ctk.CTkButton(self.taskbar, text="", font=("Consolas", 12, "bold"),
+                                        fg_color="transparent", width=180, command=self.open_calendar)
+        self.clock_btn.pack(side="right", padx=10)
+        
+        # Inicialización de elementos visuales
+        self.update_time()
+        self.setup_desktop_icons()
+        self.start_menu = None
+        self.load_wallpaper()
+
+    # Busca imágenes de fondo en el directorio de fondos
+    def scan_wallpapers(self):
+        if not os.path.exists(WALLPAPERS_DIR): return []
+        ws = [f for f in os.listdir(WALLPAPERS_DIR) if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".bmp"))]
+        return sorted(ws) if ws else []
+
+    # Carga y escala la imagen de fondo sin distorsionar
+    def load_wallpaper(self):
+        if not self.wallpapers: return
+        try:
+            fname = self.wallpapers[self.current_wallpaper_idx]
+            path = os.path.join(WALLPAPERS_DIR, fname)
+            if not os.path.exists(path): return
+            
+            wall_img = Image.open(path)
+            # Ajuste Proporcional
+            win_w = self.desktop.winfo_width()
+            win_h = self.desktop.winfo_height()
+            if win_w < 100 or win_h < 100: win_w, win_h = 1300, 850
+            
+            wall_img = ImageOps.fit(wall_img, (win_w, win_h), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+            self.bg_image = ctk.CTkImage(wall_img, wall_img, size=(win_w, win_h))
+            self.bg_label.configure(image=self.bg_image)
+        except Exception as e: print(f"Error wallpaper: {e}")
+
+    # Cambia al siguiente fondo disponible
+    def change_wallpaper(self):
+        if not self.wallpapers: return
+        self.current_wallpaper_idx = (self.current_wallpaper_idx + 1) % len(self.wallpapers)
+        self.load_wallpaper()
+
+    # Ajusta el volumen del sistema
+    def change_volume(self, value):
+        self.volume_level = float(value)
+        pygame.mixer.music.set_volume(self.volume_level)
+        icon = "🔇" if self.volume_level == 0 else "🔉" if self.volume_level < 0.5 else "🔊"
+        self.vol_label.configure(text=icon)
+
+    # Actualiza la hora cada segundo
+    def update_time(self):
+        self.clock_btn.configure(text=datetime.datetime.now().strftime("%I:%M:%S %p\n%d/%m/%Y"))
+        self.after(1000, self.update_time)
+
+    # Aplica un nuevo esquema de colores
+    def apply_theme(self, name):
+        self.current_theme = name
+        colors = THEMES[name]
+        ctk.set_appearance_mode(colors[4])
+        self.start_btn.configure(fg_color=colors[0], hover_color=colors[1])
+        txt_col = "white" if colors[4] == "dark" else "black"
+        for child in self.desktop.winfo_children():
+            if isinstance(child, ctk.CTkButton) and child != self.bg_label:
+                child.configure(text_color=txt_col)
+        messagebox.showinfo("Sistema", f"Tema '{name}' aplicado.")
+
+    # Crea los íconos de acceso directo en el escritorio
+    def setup_desktop_icons(self):
+        icons = [("🖥️\nMi PC", "mypc", self.open_my_pc), ("🗂️\nExplorador", "explorer", self.open_explorer),
+                 ("🌍\nNavegador", "browser", self.open_browser), ("📽️\nVideo Pro", "video", self.open_video_player),
+                 ("🗒️\nNotepad", "notepad", self.open_notepad)]
+        for i, (name, aid, cmd) in enumerate(icons):
+            btn = ctk.CTkButton(self.desktop, text=name, width=120, height=130, fg_color="transparent", 
+                                 text_color="white", hover_color=("#b2bec3", "#636e72"), 
+                                 font=("Segoe UI", 20, "bold"), command=cmd)
+            btn.place(x=40, y=30 + (i * 140))
+
+    # Muestra u oculta el menú de inicio
+    def toggle_start_menu(self):
+        if self.start_menu: self.start_menu.destroy(); self.start_menu = None
+        else:
+            self.start_menu = ctk.CTkFrame(self.desktop, width=350, height=600, border_width=2, corner_radius=20)
+            self.start_menu.place(x=10, y=self.desktop.winfo_height() - 610); self.start_menu.lift()
+            ctk.CTkLabel(self.start_menu, text="SISTEMA JPV v4.2", font=("Segoe UI", 20, "bold")).pack(pady=20)
+            app_f = ctk.CTkFrame(self.start_menu, fg_color="transparent"); app_f.pack(fill="both", expand=True, padx=10)
+            apps = [("🗂️ Explorador", self.open_explorer), ("🌍 Navegador", self.open_browser), ("📽️ Video Player", self.open_video_player),
+                    ("🖥️ Mi PC", self.open_my_pc), ("🗒️ Notepad", self.open_notepad), ("🧮 Calculadora", self.open_calc)]
+            for n, c in apps:
+                ctk.CTkButton(app_f, text=n, fg_color="transparent", anchor="w", height=40, command=lambda cmd=c: [cmd(), self.toggle_start_menu()]).pack(fill="x")
+            ctk.CTkLabel(self.start_menu, text="--- Personalización ---", font=("Segoe UI", 10)).pack(pady=5)
+            for tname in THEMES:
+                ctk.CTkButton(self.start_menu, text=tname, height=28, fg_color=THEMES[tname][0], command=lambda t=tname: self.apply_theme(t)).pack(fill="x", padx=40, pady=1)
+            ctk.CTkButton(self.start_menu, text="🖼️ Siguiente Fondo", command=self.change_wallpaper, fg_color="#0984e3").pack(fill="x", padx=40, pady=10)
+
+    # Administra la creación de nuevas ventanas de aplicación
+    def request_app(self, app_id, title, size):
+        if app_id in self.running_apps:
+            self.running_apps[app_id].lift(); return None # Si ya está abierta, la trae al frente
+        win = InternalWindow(self.desktop, app_id, title, *map(int, size.split('x')), on_close=self.on_app_close, theme_colors=THEMES[self.current_theme])
+        self.running_apps[app_id] = win
+        win.place(x=300, y=100); return win
+
+    # Evento cuando se cierra una aplicación
+    def on_app_close(self, app_id):
+        if app_id in self.running_apps: del self.running_apps[app_id]
+
+    # --- VIDEO PLAYER PRO (AUDIO REAL + SIN DISTORSIÓN) ---
+    # Reproductor multimedia avanzado
+    def open_video_player(self):
+        win = self.request_app("video", "JPV Video Pro (Audio+)", "800x650")
+        if not win: return
+        vpath = filedialog.askopenfilename(filetypes=[("Video", "*.mp4 *.avi")])
+        if not vpath: win.destroy(); return
+        
+        # Extraer Audio con MoviePy y correr en otro hilo para no congelar la UI
+        audio_temp = os.path.join(TEMP_DIR, "temp_audio.mp3")
+        def extract():
+            try:
+                clip = mp.VideoFileClip(vpath)
+                clip.audio.write_audiofile(audio_temp, logger=None)
+                pygame.mixer.music.load(audio_temp)
+                pygame.mixer.music.play()
+            except: pass
+        threading.Thread(target=extract, daemon=True).start()
+
+        # Preparar OpenCV para el video
+        cap = cv2.VideoCapture(vpath)
+        total_f = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        canvas = ctk.CTkLabel(win.content, text="")
+        canvas.pack(fill="both", expand=True)
+        
+        # Barra de progreso
+        seek = ctk.CTkSlider(win.content, from_=0, to=total_f, height=15, command=lambda v: [cap.set(cv2.CAP_PROP_POS_FRAMES, int(v)), pygame.mixer.music.play(start=int(v)/cap.get(cv2.CAP_PROP_FPS))])
+        seek.pack(fill="x", pady=5)
+        
+        self.is_playing = True
+        # Función para pausar / reanudar
+        def toggle():
+            self.is_playing = not self.is_playing
+            if self.is_playing: pygame.mixer.music.unpause()
+            else: pygame.mixer.music.pause()
+
+        ctk.CTkButton(win.content, text="Play/Pausa", command=toggle).pack(pady=5)
+
+        # Función recursiva que actualiza los frames (Bucle del video)
+        def stream():
+            if not win.winfo_exists(): 
+                cap.release(); pygame.mixer.music.stop(); return
+            if self.is_playing:
+                ret, frame = cap.read()
+                if ret:
+                    seek.set(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # Convertir colores para TK
+                    img = Image.fromarray(frame)
+                    img = ImageOps.contain(img, (750, 450)) # Mantener proporción
+                    imgtk = ImageTk.PhotoImage(image=img)
+                    canvas.imgtk = imgtk; canvas.configure(image=imgtk)
+            win.after(25, stream) # Llama la función cada 25ms (~40 FPS)
+        stream()
+
+    # --- OTRAS APPS ---
+    
+    # Navegador de archivos simple
+    def open_explorer(self, path=ROOT_DIR):
+        win = self.request_app("explorer", f"Explorador - {os.path.basename(path) or 'Raíz'}", "700x500")
+        if not win: return
+        nav = ctk.CTkFrame(win.content, height=40); nav.pack(fill="x", pady=2)
+        ctk.CTkButton(nav, text="⬆️ Subir", width=70, command=lambda: [win.destroy(), self.on_app_close("explorer"), self.open_explorer(os.path.dirname(path))]).pack(side="left", padx=5)
+        scroll = ctk.CTkScrollableFrame(win.content); scroll.pack(fill="both", expand=True)
+        for item in os.listdir(path):
+            fp = os.path.join(path, item); is_d = os.path.isdir(fp)
+            ctk.CTkButton(scroll, text=f"{'📁' if is_d else '📄'} {item}", anchor="w", fg_color="transparent", command=lambda p=fp: [win.destroy(), self.on_app_close("explorer"), self.open_explorer(p)] if os.path.isdir(p) else self.open_notepad(p)).pack(fill="x")
+
+    # Navegador web usando tkinterweb
+    def open_browser(self):
+        win = self.request_app("browser", "JPV Browser", "950x700")
+        if not win: return
+        nav = ctk.CTkFrame(win.content, height=40); nav.pack(fill="x", side="top", pady=2)
+        ent = ctk.CTkEntry(nav, placeholder_text="URL..."); ent.pack(side="left", fill="x", expand=True, padx=5)
+        web = HtmlFrame(win.content); web.pack(fill="both", expand=True)
+        ctk.CTkButton(nav, text="Ir", width=60, command=lambda: web.load_website(ent.get() if ent.get().startswith("http") else "https://"+ent.get())).pack(side="right", padx=5)
+        web.load_website("https://www.google.com")
+
+    # Aplicación para ver el estado de los discos usando psutil
+    def open_my_pc(self):
+        win = self.request_app("mypc", "Mi PC - Estado", "600x450")
+        if not win: return
+        scroll = ctk.CTkScrollableFrame(win.content); scroll.pack(fill="both", expand=True)
+        for p in psutil.disk_partitions():
+            try:
+                u = psutil.disk_usage(p.mountpoint)
+                f = ctk.CTkFrame(scroll, fg_color=("#dfe6e9", "#34495e"), corner_radius=10); f.pack(fill="x", pady=5, padx=5)
+                ctk.CTkLabel(f, text=f"Unidad {p.device}\n{u.free//2**30}GB Libres", justify="left").pack(side="left", padx=15, pady=10)
+                pg = ctk.CTkProgressBar(f, width=180); pg.pack(side="right", padx=15); pg.set(u.percent/100)
+            except: continue
+
+    # Editor de texto básico
+    def open_notepad(self, path=None):
+        win = self.request_app("notepad", "Notepad JPV", "600x500")
+        if not win: return
+        txt = ctk.CTkTextbox(win.content, font=("Consolas", 14)); txt.pack(fill="both", expand=True)
+        if path:
+            with open(path, "r") as f: txt.insert("0.0", f.read())
+        # Guarda el contenido en un archivo de texto
+        def save():
+            p = path or filedialog.asksaveasfilename(initialdir=ROOT_DIR, defaultextension=".txt")
+            if p:
+                with open(p, "w") as f: f.write(txt.get("0.0", "end"))
+                messagebox.showinfo("Sistema", "Guardado."); win.destroy(); self.on_app_close("notepad")
+        ctk.CTkButton(win.content, text="💾 Guardar", command=save, fg_color="#00b894").pack(pady=10)
+
+    # Calculadora simple con eval()
+    def open_calc(self):
+        win = self.request_app("calc", "Calculadora", "320x450")
+        if not win: return
+        ent = ctk.CTkEntry(win.content, font=("Consolas", 24), justify="right"); ent.pack(fill="x", padx=10, pady=15)
+        grid = ctk.CTkFrame(win.content); grid.pack(fill="both", expand=True)
+        btns = ['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+']
+        r, c = 0, 0
+        for b in btns:
+            ctk.CTkButton(grid, text=b, width=65, height=65, command=lambda x=b: [ent.insert("end", x) if x not in ["=","C"] else (ent.delete(0,"end") if x=="C" else ent.insert("end","="+str(eval(ent.get()))))]).grid(row=r, column=c, padx=3, pady=3)
+            c+=1; 
+            if c>3: c=0; r+=1
+
+    # Visor de calendario usando tkcalendar
+    def open_calendar(self):
+        win = self.request_app("calendar", "Calendario", "400x500")
+        if not win: return
+        Calendar(win.content).pack(pady=10, padx=10, fill="both", expand=True)
+
+# === PUNTO DE ENTRADA ===
+if __name__ == "__main__":
+    app = MiniWindowsV4() # Instancia la clase principal
+    app.mainloop() # Inicia el ciclo principal (loop de eventos)
